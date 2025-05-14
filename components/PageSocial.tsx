@@ -45,6 +45,16 @@ const socialLinks: SocialLink[] = [
       </svg>
     )
   },
+  config.facebook && {
+    name: 'facebook',
+    href: `https://www.facebook.com/${config.facebook}`,
+    title: `Facebook ${config.author}`,
+    icon: (
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+        <path d='M13.5 22V12h3.5l.5-4h-4V6c0-1.1.9-2 2-2h2V1h-3c-2.8 0-5 2.2-5 5v2H6v4h3.5v10h4z' />
+      </svg>
+    )
+  },
 
   config.newsletter && {
     name: 'newsletter',

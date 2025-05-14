@@ -15,6 +15,7 @@ export interface SiteConfig {
   linkedin?: string
   newsletter?: string
   youtube?: string
+  facebook?: string
   zhihu?: string
   mastodon?: string
 
