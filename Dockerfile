@@ -6,5 +6,5 @@ COPY .next/static ./.next/static
 COPY public ./public
 
 EXPOSE 3000
-ENV NODE_ENV production
-CMD ["node", "server.js"]
+ENV NODE_ENV=production
+CMD HOSTNAME="0.0.0.0" node server.js
