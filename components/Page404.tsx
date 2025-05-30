@@ -4,7 +4,7 @@ import { PageHead } from './PageHead'
 import styles from './styles.module.css'
 
 export function Page404({ site, pageId, error }: types.PageProps) {
-  const title = site?.name || 'Notion Page Not Found'
+  const title = site?.name || 'Page Not Found'
 
   return (
     <>
