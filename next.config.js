@@ -7,9 +7,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 export default withBundleAnalyzer({
-  output: 'standalone',
+  // output: 'standalone',
   staticPageGenerationTimeout: 300,
   images: {
+    unoptimized: true, // Disable image optimization
     remotePatterns: [
       { protocol: 'https', hostname: 'www.notion.so' },
       { protocol: 'https', hostname: 'notion.so' },
