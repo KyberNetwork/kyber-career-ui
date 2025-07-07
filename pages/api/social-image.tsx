@@ -27,7 +27,7 @@ export default async function OGImage(
     searchParams.get('id') || libConfig.rootNotionPageId
   )
   if (!pageId) {
-    return new Response('Invalid notion page id', { status: 400 })
+    return new Response('Invalid Notion Page Id', { status: 400 })
   }
 
   const pageInfoOrError = await getNotionPageInfo({ pageId })
