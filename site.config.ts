@@ -22,6 +22,7 @@ export default siteConfig({
   // github: 'transitive-bullshit',
   linkedin: 'company/kybernetwork',
   facebook: 'KyberCareers',
+  includeNotionIdInUrls: true,
   // mastodon: '#', // optional mastodon profile URL, provides link verification
   // newsletter: '#', // optional newsletter URL
   // youtube: '#', // optional youtube channel name or `channel/UCGbXXXXXXXXXXXXXXXXXXXXXX`
