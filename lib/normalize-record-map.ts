@@ -29,7 +29,9 @@ function normalizeRecord(record: any) {
 /**
  * Normalizes all records in a map.
  */
-function normalizeMap<T>(map: Record<string, T> | undefined): Record<string, T> | undefined {
+function normalizeMap<T>(
+  map: Record<string, T> | undefined
+): Record<string, T> | undefined {
   if (!map) {
     return map
   }
@@ -52,7 +54,9 @@ function normalizeMap<T>(map: Record<string, T> | undefined): Record<string, T> 
  *
  * This function flattens the nested structure for all record types.
  */
-export function normalizeRecordMap(recordMap: ExtendedRecordMap): ExtendedRecordMap {
+export function normalizeRecordMap(
+  recordMap: ExtendedRecordMap
+): ExtendedRecordMap {
   if (!recordMap) {
     return recordMap
   }
