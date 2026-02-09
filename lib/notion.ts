@@ -13,6 +13,7 @@ import {
   navigationStyle
 } from './config'
 import { getTweetsMap } from './get-tweets'
+import { normalizeRecordMap } from './normalize-record-map'
 import { notion } from './notion-api'
 import { getPreviewImageMap } from './preview-images'
 
@@ -45,6 +46,9 @@ const getNavigationLinkPages = pMemoize(
 export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   let recordMap = await notion.getPage(pageId)
 
+  // Normalize the Notion API response to fix double-nested value structure
+  recordMap = normalizeRecordMap(recordMap)
+
   if (navigationStyle !== 'default') {
     // ensure that any pages linked to in the custom navigation header have
     // their block info fully resolved in the page record map so we know
@@ -54,7 +58,7 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
     if (navigationLinkRecordMaps?.length) {
       recordMap = navigationLinkRecordMaps.reduce(
         (map, navigationLinkRecordMap) =>
-          mergeRecordMaps(map, navigationLinkRecordMap),
+          mergeRecordMaps(map, normalizeRecordMap(navigationLinkRecordMap)),
         recordMap
       )
     }
