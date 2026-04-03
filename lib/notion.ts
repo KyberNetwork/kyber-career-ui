@@ -117,8 +117,7 @@ async function fetchMissingCollectionData(
   await pMap(
     missingCollectionInstances,
     async ({ collectionId, collectionViewId }) => {
-      const collectionView =
-        recordMap.collection_view[collectionViewId]?.value
+      const collectionView = recordMap.collection_view[collectionViewId]?.value
       try {
         const collectionData = await notion.getCollectionData(
           collectionId,
@@ -136,8 +135,7 @@ async function fetchMissingCollectionData(
         }
         recordMap.collection_view = {
           ...recordMap.collection_view,
-          ...normalizeRecordMap(collectionData.recordMap as any)
-            .collection_view
+          ...normalizeRecordMap(collectionData.recordMap as any).collection_view
         }
         recordMap.collection_query[collectionId] = {
           ...recordMap.collection_query[collectionId],
