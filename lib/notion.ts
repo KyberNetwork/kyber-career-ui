@@ -3,7 +3,11 @@ import {
   type SearchParams,
   type SearchResults
 } from 'notion-types'
-import { mergeRecordMaps } from 'notion-utils'
+import {
+  getBlockCollectionId,
+  getPageContentBlockIds,
+  mergeRecordMaps
+} from 'notion-utils'
 import pMap from 'p-map'
 import pMemoize from 'p-memoize'
 
@@ -49,6 +53,11 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   // Normalize the Notion API response to fix double-nested value structure
   recordMap = normalizeRecordMap(recordMap)
 
+  // The double-nested value bug causes notion-client to fail detecting
+  // collection_view blocks during getPage(), so collection_query is empty.
+  // Re-fetch collection data after normalization.
+  await fetchMissingCollectionData(recordMap)
+
   if (navigationStyle !== 'default') {
     // ensure that any pages linked to in the custom navigation header have
     // their block info fully resolved in the page record map so we know
@@ -72,6 +81,79 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   await getTweetsMap(recordMap)
 
   return recordMap
+}
+
+async function fetchMissingCollectionData(
+  recordMap: ExtendedRecordMap
+): Promise<void> {
+  const contentBlockIds = getPageContentBlockIds(recordMap)
+
+  const missingCollectionInstances = contentBlockIds.flatMap((blockId) => {
+    const block = recordMap.block[blockId]?.value
+    if (
+      !block ||
+      (block.type !== 'collection_view' &&
+        block.type !== 'collection_view_page')
+    ) {
+      return []
+    }
+
+    const collectionId = getBlockCollectionId(block, recordMap)
+    if (!collectionId) return []
+
+    // Only fetch if collection_query is missing for this collection
+    return (block.view_ids || [])
+      .filter(
+        (viewId: string) => !recordMap.collection_query[collectionId]?.[viewId]
+      )
+      .map((collectionViewId: string) => ({
+        collectionId,
+        collectionViewId
+      }))
+  })
+
+  if (!missingCollectionInstances.length) return
+
+  await pMap(
+    missingCollectionInstances,
+    async ({ collectionId, collectionViewId }) => {
+      const collectionView =
+        recordMap.collection_view[collectionViewId]?.value
+      try {
+        const collectionData = await notion.getCollectionData(
+          collectionId,
+          collectionViewId,
+          collectionView
+        )
+
+        recordMap.block = {
+          ...recordMap.block,
+          ...normalizeRecordMap(collectionData.recordMap as any).block
+        }
+        recordMap.collection = {
+          ...recordMap.collection,
+          ...normalizeRecordMap(collectionData.recordMap as any).collection
+        }
+        recordMap.collection_view = {
+          ...recordMap.collection_view,
+          ...normalizeRecordMap(collectionData.recordMap as any)
+            .collection_view
+        }
+        recordMap.collection_query[collectionId] = {
+          ...recordMap.collection_query[collectionId],
+          [collectionViewId]: (collectionData as any).result?.reducerResults
+        }
+      } catch (err) {
+        console.warn(
+          'fetchMissingCollectionData error',
+          collectionId,
+          collectionViewId,
+          (err as Error).message
+        )
+      }
+    },
+    { concurrency: 4 }
+  )
 }
 
 export async function search(params: SearchParams): Promise<SearchResults> {
