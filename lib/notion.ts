@@ -83,7 +83,7 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   return recordMap
 }
 
-async function fetchMissingCollectionData(
+export async function fetchMissingCollectionData(
   recordMap: ExtendedRecordMap
 ): Promise<void> {
   const contentBlockIds = getPageContentBlockIds(recordMap)

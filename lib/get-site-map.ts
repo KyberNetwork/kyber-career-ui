@@ -5,6 +5,8 @@ import type * as types from './types'
 import * as config from './config'
 import { includeNotionIdInUrls } from './config'
 import { getCanonicalPageId } from './get-canonical-page-id'
+import { normalizeRecordMap } from './normalize-record-map'
+import { fetchMissingCollectionData } from './notion'
 import { notion } from './notion-api'
 
 const uuid = !!includeNotionIdInUrls
@@ -27,7 +29,11 @@ const getAllPages = pMemoize(getAllPagesImpl, {
 
 const getPage = async (pageId: string, ...args) => {
   console.log('\nnotion getPage', uuidToId(pageId))
-  return notion.getPage(pageId, ...args)
+  // normalize the double-nested value structure and backfill collection data,
+  // otherwise getAllPagesInSpace can't see child pages or collection rows
+  const recordMap = normalizeRecordMap(await notion.getPage(pageId, ...args))
+  await fetchMissingCollectionData(recordMap)
+  return recordMap
 }
 
 async function getAllPagesImpl(
